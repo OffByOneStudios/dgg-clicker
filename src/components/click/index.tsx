@@ -1,7 +1,12 @@
-import { Button } from "@chakra-ui/react";
+import { Button, Box, Flex, Text } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAudioEngine } from "../sys/audio/AudioEngine";
+import { useClicker } from "../sys/simulation";
+import { usePlayer } from "../player/PlayerContext";
+import { FaPlay, FaPause, FaVolumeUp, FaCircle, FaUser, FaStore, FaFlask, FaSatellite } from "react-icons/fa";
+import { ResearchDrawer } from "../research/ResearchDrawer";
+import { useResearchDrawer } from "../research/ResearchDrawerContext";
 
 const pulse = keyframes`
   0% { box-shadow: 0 0 0 0 rgba(66,153,225, 0.7); }
@@ -9,7 +14,7 @@ const pulse = keyframes`
   100% { box-shadow: 0 0 0 0 rgba(66,153,225, 0); }
 `;
 
-export default function ClickButton({ onClick }: { onClick?: () => void }) {
+export function ClickButton({ onClick }: { onClick?: () => void }) {
   const [isPressed, setIsPressed] = useState(false);
   const { playSfx } = useAudioEngine();
 
@@ -45,4 +50,236 @@ export default function ClickButton({ onClick }: { onClick?: () => void }) {
       Click!
     </Button>
   );
+}
+
+function BottomViewerControls() {
+  const { components, paused, setPaused } = useClicker();
+  const viewers = components.find((c) => c.id === "viewer")?.owned || 0;
+  const { globalVolume, setGlobalVolume } = useAudioEngine();
+
+  const handlePlayPause = () => setPaused((p) => !p);
+
+  return (
+    <Flex
+      position="absolute"
+      bottom={0}
+      right={0}
+      height="auto"
+      width="auto"
+      px={4}
+      py={3}
+      align="center"
+      bg="rgba(0,0,0,0.0)"
+      justify="flex-end"
+      direction="row"
+      zIndex={2}
+    >
+      <Flex align="center" gap={4}>
+        <Box
+          as="button"
+          aria-label={paused ? "Play" : "Pause"}
+          onClick={handlePlayPause}
+          color="white"
+          fontSize="xl"
+          mr={2}
+        >
+          {paused ? <FaPlay /> : <FaPause />}
+        </Box>
+        <Flex align="center" gap={1}>
+          <FaCircle color={paused ? "#888" : "#f00"} style={{ marginRight: 4 }} />
+          <Text
+            color={paused ? "gray.400" : "red.400"}
+            fontWeight="bold"
+            fontSize="sm"
+            letterSpacing="wide"
+          >
+            LIVE
+          </Text>
+        </Flex>
+        <FaVolumeUp color="white" />
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={globalVolume}
+          onChange={(e) => setGlobalVolume(Number(e.target.value))}
+          style={{ width: 80 }}
+        />
+        <Flex align="center" gap={1} ml={2}>
+          <FaUser style={{ color: "white", display: "inline", marginRight: 4 }} />
+          <Text
+            color="white"
+            fontWeight="bold"
+            fontSize="sm"
+            textShadow="0 2px 8px #000"
+          >
+            {viewers} viewers
+          </Text>
+        </Flex>
+      </Flex>
+    </Flex>
+  );
+}
+
+function ScorePanel({ score, scorePerSecond }: { score: number; scorePerSecond: number }) {
+  return (
+    <Box
+      position="absolute"
+      top={4}
+      left={4}
+      bg="rgba(0,0,0,0.6)"
+      borderRadius="md"
+      px={4}
+      py={2}
+      zIndex={3}
+      boxShadow="md"
+      minW="160px"
+    >
+      <Text
+        fontSize="2xl"
+        fontWeight="semibold"
+        color="white"
+        textShadow="0 2px 8px #000"
+      >
+        Score: {score}
+      </Text>
+      <Text
+        fontSize="lg"
+        color="gray.200"
+        textShadow="0 2px 8px #000"
+      >
+        /s: {scorePerSecond}
+      </Text>
+    </Box>
+  );
+}
+
+function DesktopIcon({ label, icon, onClick }: { label: string; icon: React.ReactNode; onClick: () => void }) {
+  return (
+    <Box
+      cursor={"pointer"}
+      as="button"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      p={2}
+      borderRadius="md"
+      bg="transparent"
+      _hover={{ bg: "rgba(66,153,225,0.15)", color: "white" }}
+      color="white"
+      minW="56px"
+      onClick={onClick}
+      transition="background 0.2s"
+    >
+      {icon}
+      <Text fontSize="xs" mt={1} fontWeight="semibold" textShadow="0 2px 8px #000">
+        {label}
+      </Text>
+    </Box>
+  );
+}
+
+function DesktopIconGrid() {
+  const { open: openResearch } = useResearchDrawer();
+  const icons = [
+    { label: "Shop", icon: <FaStore size={28} />, onClick: () => {/* TODO: open shop */} },
+    { label: "Research", icon: <FaFlask size={28} />, onClick: openResearch },
+    { label: "Orbiters", icon: <FaSatellite size={28} />, onClick: () => {/* TODO: open orbiters */} },
+  ];
+  return (
+    <Flex
+      position="absolute"
+      top={4}
+      right={4}
+      direction="row"
+      gap={3}
+      zIndex={3}
+      bg="transparent"
+      borderRadius="md"
+      px={1}
+      py={1}
+    >
+      {icons.map((item) => (
+        <DesktopIcon key={item.label} label={item.label} icon={item.icon} onClick={item.onClick} />
+      ))}
+    </Flex>
+  );
+}
+
+export function ClickButtonPanel() {
+  const { score, handleClick, components } = useClicker();
+  const { transition } = usePlayer();
+  const scorePerSecond = components.reduce(
+    (sum, c) => sum + c.pointsPerSecond * c.owned,
+    0
+  );
+  const animatedScore = useAnimatedNumber(score, 300);
+  const handleClickWithAnim = () => {
+    transition("IdleMouthOpen", 100);
+    handleClick();
+  };
+  return (
+    <Flex
+      flex={1}
+      direction="column"
+      align="center"
+      justify="center"
+      position="relative"
+      minH="0"
+      bgImage="url('/img/bg/pepe.webp')"
+      bgSize="cover"
+      backgroundPosition="center"
+      borderRadius="lg"
+      boxShadow="xl"
+      overflow="hidden"
+    >
+      <ScorePanel score={animatedScore} scorePerSecond={Math.floor(scorePerSecond)} />
+      <DesktopIconGrid />
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        flex={1}
+        w="100%"
+        h="100%"
+        pt={8}
+      >
+        <ClickButton onClick={handleClickWithAnim} />
+        <BottomViewerControls />
+      </Flex>
+    </Flex>
+  );
+}
+
+// Animated number hook for smooth counter
+export function useAnimatedNumber(target: number, duration = 300) {
+  const [display, setDisplay] = useState(target);
+  const raf = useRef<number | null>(null);
+
+  useEffect(() => {
+    let start: number | null = null;
+    let initial = display;
+
+    function animate(ts: number) {
+      if (start === null) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      setDisplay(initial + (target - initial) * progress);
+      if (progress < 1) {
+        raf.current = requestAnimationFrame(animate);
+      } else {
+        setDisplay(target);
+      }
+    }
+
+    raf.current = requestAnimationFrame(animate);
+    return () => {
+      if (raf.current !== null) {
+        cancelAnimationFrame(raf.current);
+      }
+    };
+  }, [target, duration]);
+
+  return Math.floor(display);
 }

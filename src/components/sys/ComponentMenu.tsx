@@ -77,7 +77,7 @@ export default function ComponentMenu() {
   });
 
   return (
-    <Box bg="gray.50" w="320px" overflowY="auto" p={4} boxShadow="md" borderRight="1px solid #e2e8f0">
+    <Box bg="gray.50" w="320px" overflowY="auto" p={4} boxShadow="md" borderRight="4px solid #4A5568">
       <Text fontWeight="bold" fontSize="2xl" mb={4} textAlign="left" pl={1} letterSpacing="wide">Upgrades</Text>
       <VStack gap={4} alignItems="stretch">
         {visibleComponents.map(comp => {

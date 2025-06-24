@@ -18,6 +18,8 @@ export type ClickerContextType = {
   buyComponent: (id: string) => void;
   setScore: React.Dispatch<React.SetStateAction<number>>;
   resetGame: () => void;
+  paused: boolean;
+  setPaused: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const ClickerContext = createContext<ClickerContextType | undefined>(undefined);
@@ -44,6 +46,7 @@ function useInterval(callback: () => void, delay: number | null) {
 export const ClickerProvider = ({ children }: { children: ReactNode }) => {
   const [score, setScore] = useLocalStorage<number>("score", 0);
   const [components, setComponents] = useLocalStorage<ComponentType[]>("components", defaultComponents);
+  const [paused, setPaused] = useState(false);
 
   // refs to always have latest value
   const componentsRef = useRef(components);
@@ -79,6 +82,10 @@ export const ClickerProvider = ({ children }: { children: ReactNode }) => {
   const intervalMs = 100; // 0.1 second
   const lastTickRef = useRef(Date.now());
   useInterval(() => {
+    if (paused) {
+      lastTickRef.current = Date.now(); // Reset tick so no time accumulates while paused
+      return;
+    }
     const now = Date.now();
     const deltaSec = (now - lastTickRef.current) / 1000;
     lastTickRef.current = now;
@@ -88,7 +95,7 @@ export const ClickerProvider = ({ children }: { children: ReactNode }) => {
   }, intervalMs);
 
   return (
-    <ClickerContext.Provider value={{ score, components, handleClick, buyComponent, setScore, resetGame }}>
+    <ClickerContext.Provider value={{ score, components, handleClick, buyComponent, setScore, resetGame, paused, setPaused }}>
       {children}
     </ClickerContext.Provider>
   );

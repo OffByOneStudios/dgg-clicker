@@ -3,6 +3,8 @@ import { ClickerProvider } from './components/sys/simulation';
 import Shell from './components/sys/shell';
 import { AudioEngineProvider } from './components/sys/audio/AudioEngine';
 import { PlayerProvider } from './components/player/PlayerContext';
+import { MarkovChainProvider } from './components/chat/MarkovChain';
+import { ResearchDrawerProvider } from './components/research/ResearchDrawerContext';
 
 export default function App() {
   return (
@@ -10,7 +12,11 @@ export default function App() {
       <AudioEngineProvider>
         <PlayerProvider>
           <ClickerProvider>
-            <Shell />
+            <MarkovChainProvider>
+              <ResearchDrawerProvider>
+                <Shell />
+              </ResearchDrawerProvider>
+            </MarkovChainProvider>
           </ClickerProvider>
         </PlayerProvider>
       </AudioEngineProvider>
