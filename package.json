@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
-  "scripts": {
+  "type": "module",  "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "wrangler pages deploy dist",
+    "deploy:dev": "wrangler pages deploy dist --env development",
+    "deploy:prod": "wrangler pages deploy dist --env production"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +20,8 @@
     "@types/react-dom": "^19.1.6",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
-    "vite-plugin-react": "^3.0.0"
+    "vite-plugin-react": "^3.0.0",
+    "wrangler": "^4.21.0"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.21.0",

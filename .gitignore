@@ -36,3 +36,7 @@ coverage/
 
 # Optional: typescript cache
 *.tsbuildinfo
+
+# Wrangler/Cloudflare Workers
+.wrangler/
+wrangler.toml.bak
