@@ -1,0 +1,13 @@
+name = "dgg-clicker"
+main = "src/index.js"
+compatibility_date = "2023-05-18"
+
+[site]
+bucket = "./dist"
+
+[build]
+command = "npm run build"
+
+# Optional: Configure custom domain
+# [env.production]
+# route = { pattern = "your-domain.com/*", zone_name = "your-domain.com" }
