@@ -11,10 +11,11 @@ is a file called "chakra_components.txt" that has the current component definiti
 ## TODO
 
 ## Simulation reafactor
-We are refactoring the simulation into seperate files. Vite is not bundling them correctly, specifically imports
+* We are refactoring the simulation into seperate files. Vite is not bundling them correctly, specifically imports
 * Messages are currently untyped. Make them an enum
 * Move the state into a seperate file
-
+* Make the commands functions
+* 
 
 
 * Buying things

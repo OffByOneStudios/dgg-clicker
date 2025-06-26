@@ -1,61 +1,18 @@
 import { useRef, useEffect, useState, createContext, useContext, ReactNode } from "react";
 import { defaultComponents } from "./defaultComponents";
+import type {
+  ComponentType,
+  InventoryConsumable,
+  InventoryEquipment,
+  InventoryItem,
+  EquipmentId,
+  SkillSlotType,
+  PepeEquipment,
+  SimulationState
+} from "./types";
+import { toaster } from '../../ui/toaster';
 
-// Types
-export type ComponentType = {
-  id: string;
-  name: string;
-  cost: number;
-  costFactor: number;
-  pointsPerSecond: number;
-  moneyPerSecond?: number;
-  researchPerSecond?: number;
-  owned: number;
-};
-
-// Inventory Types
-export type InventoryConsumable = {
-  id: string;
-  type: "consumable";
-  name: string;
-  amount: number;
-  effect: string; // effect descriptor, can be a string or function name
-};
-
-export type InventoryEquipment = {
-  id: string;
-  type: "equipment";
-  name: string;
-  owned: boolean;
-  effect: string; // effect descriptor, can be a string or function name
-};
-
-export type InventoryItem = InventoryConsumable | InventoryEquipment;
-
-// Equipment Types
-export type EquipmentId =
-  | "pc"
-  | "monitor"
-  | "keyboard"
-  | "mouse"
-  | "microphone"
-  | "camera"
-  | "chair";
-
-export type SkillSlotType = "skill" | "ultimate";
-
-export type PepeEquipment = {
-  pc: InventoryEquipment;
-  monitor: InventoryEquipment;
-  keyboard: InventoryEquipment;
-  mouse: InventoryEquipment;
-  microphone: InventoryEquipment;
-  camera: InventoryEquipment;
-  chair: InventoryEquipment;
-  skills: (InventoryEquipment | null)[]; // 3 skill slots
-  ultimate: InventoryEquipment | null; // 1 ultimate slot
-};
-
+// Context Types
 export type ClickerContextType = {
   score: number;
   money: number;
@@ -100,11 +57,12 @@ export const ClickerProvider = ({ children }: { children: ReactNode }) => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [pepeEquipment, setPepeEquipment] = useState<PepeEquipment>(defaultPepeEquipment);
   const workerRef = useRef<Worker | null>(null);
+  
 
   useEffect(() => {
     const worker = new Worker(new URL("./worker/index.ts", import.meta.url), { type: "module" });
     workerRef.current = worker;
-    worker.postMessage({ type: "init", payload: { score: 0, money: 0, research: 0, paused: false, inventory: [], pepeEquipment: defaultPepeEquipment } });
+    worker.postMessage({ type: "init", payload: { }});
     worker.onmessage = (e) => {
       if (e.data.type === "state") {
         setScore(e.data.score);
@@ -113,7 +71,18 @@ export const ClickerProvider = ({ children }: { children: ReactNode }) => {
         setComponents(e.data.components);
         setInventory(e.data.inventory || []);
         setPepeEquipment(e.data.pepeEquipment || defaultPepeEquipment);
+      } else if (e.data.type === "sendToast" && e.data.payload) {
+        toaster.create({
+          title: e.data.payload.message,
+          type: e.data.payload.status || 'info',
+          duration: 3000,
+          closable: true,
+        });
       }
+    };
+    // Debug: expose setResources on window
+    (window as any).setResources = (resources: { score?: number; money?: number; research?: number }) => {
+      worker.postMessage({ type: "setResources", payload: resources });
     };
     return () => worker.terminate();
   }, []);

@@ -1,6 +1,11 @@
-import type { SimulationState } from "./index";
+import type { SimulationState } from "../types";
+
+let saveVersion = 0;
 
 export function saveStateToIndexedDB(state: SimulationState) {
+  saveVersion++;
+  (state as any).saveVersion = saveVersion;
+  (state as any).saveTimestamp = Date.now();
   const req = indexedDB.open('clickerDB', 1);
   req.onupgradeneeded = function(e: any) {
     const db = e.target.result;
@@ -13,7 +18,9 @@ export function saveStateToIndexedDB(state: SimulationState) {
     const tx = db.transaction('sim', 'readwrite');
     const store = tx.objectStore('sim');
     store.put(state, 'state');
-    tx.oncomplete = () => db.close();
+    tx.oncomplete = () => {
+      db.close();
+    };
   };
 }
 

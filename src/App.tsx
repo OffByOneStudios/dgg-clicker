@@ -6,10 +6,12 @@ import { PlayerProvider } from './components/player/PlayerContext';
 import { MarkovChainProvider } from './components/chat/MarkovChain';
 import { ResearchDrawerProvider } from './components/research/ResearchDrawerContext';
 import { ShopDrawerProvider } from './components/shop/ShopDrawerContext';
+import { Toaster } from './components/ui/toaster';
 
 export default function App() {
   return (
     <Provider>
+      <Toaster />
       <AudioEngineProvider>
         <PlayerProvider>
           <ClickerProvider>

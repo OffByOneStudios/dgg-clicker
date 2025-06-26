@@ -8,6 +8,8 @@ import { FaPlay, FaPause, FaVolumeUp, FaCircle, FaUser, FaStore, FaFlask, FaSate
 import { ResearchDrawer } from "../research/ResearchDrawer";
 import { useResearchDrawer } from "../research/ResearchDrawerContext";
 import { useShopDrawer } from "../shop/ShopDrawerContext";
+import { FaBagShopping } from "react-icons/fa6";
+import { InventoryPanel, InventoryPanelProvider, useInventoryContext } from "../inventory/InventoryPanel";
 
 const pulse = keyframes`
   0% { box-shadow: 0 0 0 0 rgba(66,153,225, 0.7); }
@@ -128,10 +130,10 @@ function BottomViewerControls() {
 
 function ScorePanel() {
   const { score, money, research, components } = useClicker();
-  
-  
+
+
   const animatedScore = useAnimatedNumber(score, 300);
-  
+
   return (
     <Box
       position="absolute"
@@ -187,10 +189,12 @@ function DesktopIcon({ label, icon, onClick }: { label: string; icon: React.Reac
 function DesktopIconGrid() {
   const { open: openResearch } = useResearchDrawer();
   const { open: openShop } = useShopDrawer();
+  const { open: openInventory } = useInventoryContext();
   const icons = [
     { label: "Shop", icon: <FaStore size={28} />, onClick: openShop },
     { label: "Research", icon: <FaFlask size={28} />, onClick: openResearch },
-    { label: "Orbiters", icon: <FaSatellite size={28} />, onClick: () => {/* TODO: open orbiters */} },
+    { label: "Inventory", icon: <FaBagShopping size={28} />, onClick: openInventory },
+    { label: "Orbiters", icon: <FaSatellite size={28} />, onClick: () => {/* TODO: open orbiters */ } },
   ];
   return (
     <Flex
@@ -213,37 +217,41 @@ function DesktopIconGrid() {
 }
 
 export function ClickButtonPanel() {
-  
+
   return (
-    <Flex
-      flex={1}
-      direction="column"
-      align="center"
-      justify="center"
-      position="relative"
-      minH="0"
-      bgImage="url('/img/bg/pepe.webp')"
-      bgSize="cover"
-      backgroundPosition="center"
-      borderRadius="lg"
-      boxShadow="xl"
-      overflow="hidden"
-    >
-      <ScorePanel />
-      <DesktopIconGrid />
+    <InventoryPanelProvider>
       <Flex
+        flex={1}
         direction="column"
         align="center"
         justify="center"
-        flex={1}
-        w="100%"
-        h="100%"
-        pt={8}
+        position="relative"
+        minH="0"
+        bgImage="url('/img/bg/pepe.webp')"
+        bgSize="cover"
+        backgroundPosition="center"
+        borderRadius="lg"
+        boxShadow="xl"
+        overflow="hidden"
       >
-        <ClickButton />
-        <BottomViewerControls />
+        <ScorePanel />
+        <DesktopIconGrid />
+
+        <InventoryPanel />
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          flex={1}
+          w="100%"
+          h="100%"
+          pt={8}
+        >
+          <ClickButton />
+          <BottomViewerControls />
+        </Flex>
       </Flex>
-    </Flex>
+    </InventoryPanelProvider>
   );
 }
 
