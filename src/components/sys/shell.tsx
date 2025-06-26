@@ -8,6 +8,8 @@ import PlayerBox from '../player/PlayerBox';
 import { usePlayer } from '../player/PlayerContext';
 import { ResearchDrawer } from '../research/ResearchDrawer';
 import { useResearchDrawer } from '../research/ResearchDrawerContext';
+import { ShopDrawer } from '../shop/ShopDrawer';
+
 
 
 function GameView() {
@@ -28,10 +30,10 @@ function GameView() {
 
 
 export default function Shell() {
-  const { isOpen, close } = useResearchDrawer();
   return (
     <Flex direction="column" minH="100vh">
-      <ResearchDrawer isOpen={isOpen} onClose={close} />
+      <ResearchDrawer />
+      <ShopDrawer />
       <MenuBar />
       <GameView />
       <PlayerBox />

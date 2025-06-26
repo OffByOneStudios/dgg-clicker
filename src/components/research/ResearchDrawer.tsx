@@ -8,8 +8,10 @@ import { FaX } from "react-icons/fa6";
 
 import {ResearchFlow} from './ResearchFlow';
 import { ReactFlowProvider } from "@xyflow/react";
+import { useResearchDrawer } from "./ResearchDrawerContext";
 
-export function ResearchDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export function ResearchDrawer() {
+    const { isOpen, close } = useResearchDrawer();
     if (!isOpen) return null;
     return (
         <Portal>
@@ -21,13 +23,13 @@ export function ResearchDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: 
                 _closed={{
                     animation: "fadeOut 300ms ease-in",
                 }}
+                bgImage={`url('/img/bg/forest.jpg')`}
                 position="fixed"
                 top={0}
                 left={0}
                 w="100vw"
                 h="100vh"
                 zIndex={"overlay"}
-                bg="gray.100"
                 display="flex"
                 flexDirection="column"
                 alignItems="center"
@@ -39,7 +41,7 @@ export function ResearchDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: 
                         cursor="pointer"
                         color="black"
 
-                        onClick={onClose}
+                        onClick={close}
                     />
                 </Box>
                 <ReactFlowProvider>

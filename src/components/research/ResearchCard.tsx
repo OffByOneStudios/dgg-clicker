@@ -59,8 +59,8 @@ export function ResearchCard({data}: {data: ResearchCardProps}) {
             <Text fontSize="sm" color="gray.700" textAlign="center">
                 {description}
             </Text>
-            <Handle type="source" position={Position.Top} />
-            <Handle type="target" position={Position.Bottom} />
+            <Handle type="source" position={Position.Bottom} />
+            <Handle type="target" position={Position.Top} />
         </Box>
     );
 }

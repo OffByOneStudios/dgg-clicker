@@ -82,7 +82,7 @@ export function ResearchFlow() {
 
     return (
         <ReactFlow nodesDraggable={false} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} fitView nodes={nodes} edges={edges} nodeTypes={nodeTypes}>
-            <Background color="#000000" variant={BackgroundVariant.Dots} />
+            {/* <Background color="#000000" variant={BackgroundVariant.Dots} /> */}
         </ReactFlow>
     )
 }

@@ -8,6 +8,8 @@ export type ComponentType = {
   cost: number;
   costFactor: number;
   pointsPerSecond: number;
+  moneyPerSecond: number
+  researchPerSecond: number;
   owned: number;
 };
 

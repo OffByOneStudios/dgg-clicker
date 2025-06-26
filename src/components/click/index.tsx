@@ -7,6 +7,7 @@ import { usePlayer } from "../player/PlayerContext";
 import { FaPlay, FaPause, FaVolumeUp, FaCircle, FaUser, FaStore, FaFlask, FaSatellite } from "react-icons/fa";
 import { ResearchDrawer } from "../research/ResearchDrawer";
 import { useResearchDrawer } from "../research/ResearchDrawerContext";
+import { useShopDrawer } from "../shop/ShopDrawerContext";
 
 const pulse = keyframes`
   0% { box-shadow: 0 0 0 0 rgba(66,153,225, 0.7); }
@@ -14,18 +15,21 @@ const pulse = keyframes`
   100% { box-shadow: 0 0 0 0 rgba(66,153,225, 0); }
 `;
 
-export function ClickButton({ onClick }: { onClick?: () => void }) {
+export function ClickButton() {
+  const { handleClick } = useClicker();
+  const { transition } = usePlayer();
   const [isPressed, setIsPressed] = useState(false);
   const { playSfx } = useAudioEngine();
 
-  const handleClick = () => {
+  const onClick = () => {
     playSfx("/audio/sfx/soft-hitclap.wav", 0.5);
-    if (onClick) onClick();
+    transition("IdleMouthOpen", 100);
+    handleClick();
   };
 
   return (
     <Button
-      onClick={handleClick}
+      onClick={onClick}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
       onMouseLeave={() => setIsPressed(false)}
@@ -122,7 +126,12 @@ function BottomViewerControls() {
   );
 }
 
-function ScorePanel({ score, scorePerSecond }: { score: number; scorePerSecond: number }) {
+function ScorePanel() {
+  const { score, money, research, components } = useClicker();
+  
+  
+  const animatedScore = useAnimatedNumber(score, 300);
+  
   return (
     <Box
       position="absolute"
@@ -134,22 +143,16 @@ function ScorePanel({ score, scorePerSecond }: { score: number; scorePerSecond: 
       py={2}
       zIndex={3}
       boxShadow="md"
-      minW="160px"
+      minW="200px"
     >
-      <Text
-        fontSize="2xl"
-        fontWeight="semibold"
-        color="white"
-        textShadow="0 2px 8px #000"
-      >
-        Score: {score}
+      <Text fontSize="2xl" fontWeight="semibold" color="white" textShadow="0 2px 8px #000">
+        Score: {animatedScore}
       </Text>
-      <Text
-        fontSize="lg"
-        color="gray.200"
-        textShadow="0 2px 8px #000"
-      >
-        /s: {scorePerSecond}
+      <Text fontSize="md" color="yellow.200" textShadow="0 2px 8px #000" mt={2}>
+        Money: {money.toFixed(2)}
+      </Text>
+      <Text fontSize="md" color="blue.200" textShadow="0 2px 8px #000">
+        Research: {research.toFixed(2)}
       </Text>
     </Box>
   );
@@ -183,8 +186,9 @@ function DesktopIcon({ label, icon, onClick }: { label: string; icon: React.Reac
 
 function DesktopIconGrid() {
   const { open: openResearch } = useResearchDrawer();
+  const { open: openShop } = useShopDrawer();
   const icons = [
-    { label: "Shop", icon: <FaStore size={28} />, onClick: () => {/* TODO: open shop */} },
+    { label: "Shop", icon: <FaStore size={28} />, onClick: openShop },
     { label: "Research", icon: <FaFlask size={28} />, onClick: openResearch },
     { label: "Orbiters", icon: <FaSatellite size={28} />, onClick: () => {/* TODO: open orbiters */} },
   ];
@@ -209,17 +213,7 @@ function DesktopIconGrid() {
 }
 
 export function ClickButtonPanel() {
-  const { score, handleClick, components } = useClicker();
-  const { transition } = usePlayer();
-  const scorePerSecond = components.reduce(
-    (sum, c) => sum + c.pointsPerSecond * c.owned,
-    0
-  );
-  const animatedScore = useAnimatedNumber(score, 300);
-  const handleClickWithAnim = () => {
-    transition("IdleMouthOpen", 100);
-    handleClick();
-  };
+  
   return (
     <Flex
       flex={1}
@@ -235,7 +229,7 @@ export function ClickButtonPanel() {
       boxShadow="xl"
       overflow="hidden"
     >
-      <ScorePanel score={animatedScore} scorePerSecond={Math.floor(scorePerSecond)} />
+      <ScorePanel />
       <DesktopIconGrid />
       <Flex
         direction="column"
@@ -246,7 +240,7 @@ export function ClickButtonPanel() {
         h="100%"
         pt={8}
       >
-        <ClickButton onClick={handleClickWithAnim} />
+        <ClickButton />
         <BottomViewerControls />
       </Flex>
     </Flex>

@@ -5,6 +5,7 @@ import { AudioEngineProvider } from './components/sys/audio/AudioEngine';
 import { PlayerProvider } from './components/player/PlayerContext';
 import { MarkovChainProvider } from './components/chat/MarkovChain';
 import { ResearchDrawerProvider } from './components/research/ResearchDrawerContext';
+import { ShopDrawerProvider } from './components/shop/ShopDrawerContext';
 
 export default function App() {
   return (
@@ -14,7 +15,9 @@ export default function App() {
           <ClickerProvider>
             <MarkovChainProvider>
               <ResearchDrawerProvider>
-                <Shell />
+                <ShopDrawerProvider>
+                  <Shell />
+                </ShopDrawerProvider>
               </ResearchDrawerProvider>
             </MarkovChainProvider>
           </ClickerProvider>
