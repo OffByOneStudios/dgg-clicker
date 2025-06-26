@@ -1,10 +1,8 @@
-// ...existing clickerWorker.ts code moved here as index.ts...
-// This file has been moved to ./worker/index.ts. You can safely delete this file.
-
 // clickerWorker.ts
 // TypeScript version of clickerWorker.js
 
 import { saveStateToIndexedDB, loadStateFromIndexedDB } from "./save";
+import { defaultComponents } from "../defaultComponents";
 
 export type InventoryConsumable = {
   id: string;
@@ -195,7 +193,12 @@ onmessage = function(e: MessageEvent) {
         if (saved) {
           state = { ...state, ...saved, lastTick: Date.now() };
         } else {
-          state = { ...state, ...payload, lastTick: Date.now() };
+          state = { 
+            ...state, 
+            ...payload, 
+            components: defaultComponents.map(c => ({ ...c })), // Use imported defaultComponents
+            lastTick: Date.now() 
+          };
         }
         sendState();
       });

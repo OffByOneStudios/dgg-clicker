@@ -102,9 +102,9 @@ export const ClickerProvider = ({ children }: { children: ReactNode }) => {
   const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
-    const worker = new Worker(new URL("./worker/index.ts", import.meta.url));
+    const worker = new Worker(new URL("./worker/index.ts", import.meta.url), { type: "module" });
     workerRef.current = worker;
-    worker.postMessage({ type: "init", payload: { score: 0, money: 0, research: 0, components: defaultComponents, paused: false, inventory: [], pepeEquipment: defaultPepeEquipment } });
+    worker.postMessage({ type: "init", payload: { score: 0, money: 0, research: 0, paused: false, inventory: [], pepeEquipment: defaultPepeEquipment } });
     worker.onmessage = (e) => {
       if (e.data.type === "state") {
         setScore(e.data.score);
